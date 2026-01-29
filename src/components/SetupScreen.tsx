@@ -9,7 +9,6 @@ interface SetupScreenProps {
 
 export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
   const [text, setText] = useState('');
-  const [studentName, setStudentName] = useState(''); // 新增：学生姓名
   const [mode, setMode] = useState<'text' | 'voice' | 'image'>('text');
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStatus, setProcessingStatus] = useState('');
@@ -187,8 +186,8 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
               <button
                 onClick={handleVoiceRecording}
                 className={`w-full py-4 rounded-lg font-semibold transition-all flex items-center justify-center gap-3 ${isRecording
-                    ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
-                    : 'bg-blue-700 hover:bg-blue-800 text-white shadow-md'
+                  ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
+                  : 'bg-blue-700 hover:bg-blue-800 text-white shadow-md'
                   }`}
               >
                 <Mic size={24} />
