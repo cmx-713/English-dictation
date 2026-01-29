@@ -9,6 +9,7 @@ interface SetupScreenProps {
 
 export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
   const [text, setText] = useState('');
+  const [studentName, setStudentName] = useState(''); // 新增：学生姓名
   const [mode, setMode] = useState<'text' | 'voice' | 'image'>('text');
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStatus, setProcessingStatus] = useState('');
@@ -54,7 +55,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
       } else {
         setText(recognizedText);
         // 自动切换到文本模式，让用户看到结果
-        setMode('text'); 
+        setMode('text');
       }
     } catch (error) {
       console.error('Error processing image:', error);
@@ -68,7 +69,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
   // 实时语音识别
   const handleVoiceRecording = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    
+
     if (!SpeechRecognition) {
       alert('您的浏览器不支持语音识别功能。');
       return;
@@ -126,21 +127,21 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
 
       <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-slate-100">
         <div className="flex gap-3 mb-6 border-b border-slate-100 pb-4">
-          <button 
+          <button
             onClick={() => setMode('text')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${mode === 'text' ? 'bg-blue-50 text-blue-700 font-semibold ring-1 ring-blue-100' : 'text-slate-500 hover:bg-slate-50'}`}
           >
             <FileText size={20} />
             文本导入
           </button>
-          <button 
+          <button
             onClick={() => setMode('voice')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${mode === 'voice' ? 'bg-blue-50 text-blue-700 font-semibold ring-1 ring-blue-100' : 'text-slate-500 hover:bg-slate-50'}`}
           >
             <Mic size={20} />
             语音识别
           </button>
-          <button 
+          <button
             onClick={() => setMode('image')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${mode === 'image' ? 'bg-blue-50 text-blue-700 font-semibold ring-1 ring-blue-100' : 'text-slate-500 hover:bg-slate-50'}`}
           >
@@ -158,7 +159,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
               className="w-full h-64 p-4 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-700 focus:border-transparent outline-none resize-none text-lg leading-relaxed text-slate-800"
             />
             <div className="flex justify-end">
-              <button 
+              <button
                 onClick={() => onStart(text)}
                 disabled={!text.trim()}
                 className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white px-8 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
@@ -182,14 +183,13 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
                   </p>
                 </div>
               </div>
-              
+
               <button
                 onClick={handleVoiceRecording}
-                className={`w-full py-4 rounded-lg font-semibold transition-all flex items-center justify-center gap-3 ${
-                  isRecording 
-                    ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' 
+                className={`w-full py-4 rounded-lg font-semibold transition-all flex items-center justify-center gap-3 ${isRecording
+                    ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
                     : 'bg-blue-700 hover:bg-blue-800 text-white shadow-md'
-                }`}
+                  }`}
               >
                 <Mic size={24} />
                 {isRecording ? '点击停止录音' : '开始语音识别'}
@@ -205,7 +205,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
 
             {text && mode === 'voice' && (
               <div className="flex justify-end">
-                <button 
+                <button
                   onClick={() => {
                     setMode('text');
                     setTimeout(() => onStart(text), 300);
@@ -234,11 +234,11 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
                   <p className="text-slate-800 font-bold mb-2 text-lg">拍照或上传图片</p>
                   <p className="text-slate-600 text-sm mb-1">支持 JPG、PNG、WEBP 等格式</p>
                   <p className="text-xs text-slate-400">AI将自动识别图片中的英文文字</p>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
+                  <input
+                    type="file"
+                    accept="image/*"
                     capture="environment"
-                    onChange={handleImageUpload} 
+                    onChange={handleImageUpload}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     disabled={isProcessing}
                   />
@@ -255,7 +255,7 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
                   className="w-full h-32 p-4 rounded-lg border border-slate-200 focus:ring-2 focus:ring-blue-700 focus:border-transparent outline-none resize-none text-base leading-relaxed"
                 />
                 <div className="flex justify-end">
-                  <button 
+                  <button
                     onClick={() => onStart(text)}
                     disabled={!text.trim()}
                     className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-md disabled:opacity-50"
@@ -271,21 +271,21 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
       </div>
 
       <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-         <div className="p-4">
-            <div className="w-10 h-10 bg-blue-50 text-blue-700 rounded-full flex items-center justify-center mx-auto mb-3 font-bold border border-blue-100">1</div>
-            <h3 className="font-semibold text-slate-900">智能分句</h3>
-            <p className="text-sm text-slate-500 mt-1">自动识别句子结构，逐句练习更高效</p>
-         </div>
-         <div className="p-4">
-            <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold border border-emerald-100">2</div>
-            <h3 className="font-semibold text-slate-900">实时反馈</h3>
-            <p className="text-sm text-slate-500 mt-1">智能对比答案，精准定位听写错误</p>
-         </div>
-         <div className="p-4">
-            <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold border border-indigo-100">3</div>
-            <h3 className="font-semibold text-slate-900">多维报告</h3>
-            <p className="text-sm text-slate-500 mt-1">生成详细的学习报告，见证你的进步</p>
-         </div>
+        <div className="p-4">
+          <div className="w-10 h-10 bg-blue-50 text-blue-700 rounded-full flex items-center justify-center mx-auto mb-3 font-bold border border-blue-100">1</div>
+          <h3 className="font-semibold text-slate-900">智能分句</h3>
+          <p className="text-sm text-slate-500 mt-1">自动识别句子结构，逐句练习更高效</p>
+        </div>
+        <div className="p-4">
+          <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold border border-emerald-100">2</div>
+          <h3 className="font-semibold text-slate-900">实时反馈</h3>
+          <p className="text-sm text-slate-500 mt-1">智能对比答案，精准定位听写错误</p>
+        </div>
+        <div className="p-4">
+          <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold border border-indigo-100">3</div>
+          <h3 className="font-semibold text-slate-900">多维报告</h3>
+          <p className="text-sm text-slate-500 mt-1">生成详细的学习报告，见证你的进步</p>
+        </div>
       </div>
     </div>
   );
