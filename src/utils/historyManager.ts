@@ -1,11 +1,5 @@
 import { SentenceResult } from '../components/PracticeScreen';
 import { supabase } from '../lib/supabase';
-import { 
-  analyzeResults, 
-  getDeviceInfo, 
-  getTimeInfo, 
-  analyzeTextDifficulty 
-} from './analyticsHelper';
 
 // 必须和 HistoryScreen.tsx 里的 key 保持完全一致
 const STORAGE_KEY = 'dictation_records';
@@ -21,6 +15,8 @@ export const saveRecord = (
   rawText: string, 
   results: SentenceResult[],
   metadata?: {
+    studentName?: string;
+    className?: string;
     inputMethod?: 'voice' | 'text' | 'image';
     durationSeconds?: number;
   }
@@ -50,49 +46,51 @@ export const saveRecord = (
 
     console.log('练习记录保存成功:', newRecord); // 方便调试
 
-    // 5. 分析数据
-    const statistics = analyzeResults(rawText, results);
-    const deviceInfo = getDeviceInfo();
-    const timeInfo = getTimeInfo();
-    const textInfo = analyzeTextDifficulty(rawText);
+    // 5. 计算核心统计数据（精简版）
+    const totalSentences = results.length;
+    const perfectSentences = results.filter(r => r.score === 10).length;
+    
+    // 计算总单词数
+    let totalWords = 0;
+    results.forEach(result => {
+      result.diffs.forEach(diff => {
+        if (diff[0] === 0 || diff[0] === -1) {
+          const words = diff[1].trim().split(/\s+/).filter((w: string) => w);
+          totalWords += words.length;
+        }
+      });
+    });
+    
+    // 计算准确率
+    const averageScore = results.reduce((sum, r) => sum + r.score, 0) / results.length;
+    const accuracyRate = (averageScore / 10) * 100;
+    
+    // 简单的难度评级
+    let difficultyLevel = 'beginner';
+    if (accuracyRate >= 95) difficultyLevel = 'master';
+    else if (accuracyRate >= 85) difficultyLevel = 'advanced';
+    else if (accuracyRate >= 70) difficultyLevel = 'intermediate';
 
-    // 6. 尝试同步到 Supabase (不阻塞主流程)
+    // 6. 尝试同步到 Supabase (只保存核心字段)
     const cloudRecord = {
+      // 学生信息
+      student_name: metadata?.studentName || null,
+      class_name: metadata?.className || null,
+      
+      // 练习内容
       raw_text: rawText,
       results: results,
       created_at: new Date(newRecord.timestamp).toISOString(),
       
-      // 统计数据
-      total_sentences: statistics.totalSentences,
-      correct_sentences: statistics.correctSentences,
-      accuracy_rate: statistics.accuracyRate,
-      total_words: statistics.totalWords,
-      correct_words: statistics.correctWords,
-      average_score: statistics.averageScore,
-      
-      // 文本信息
-      text_difficulty: textInfo.difficulty,
-      text_length: textInfo.textLength,
-      text_word_count: textInfo.totalWords,
-      
-      // 设备信息
-      device_type: deviceInfo.deviceType,
-      browser: deviceInfo.browser,
-      screen_resolution: deviceInfo.screenResolution,
-      
-      // 时间信息
-      time_of_day: timeInfo.timeOfDay,
-      day_of_week: timeInfo.dayOfWeek,
-      is_weekend: timeInfo.isWeekend,
+      // 核心统计数据（对应界面显示）
+      accuracy_rate: Math.round(accuracyRate * 100) / 100,
+      perfect_sentences: perfectSentences,
+      total_sentences: totalSentences,
+      total_words: totalWords,
+      difficulty_level: difficultyLevel,
       
       // 输入方式
       input_method: metadata?.inputMethod || 'text',
-      duration_seconds: metadata?.durationSeconds,
-      
-      // 详细分析（JSON格式）
-      error_summary: statistics.errorTypes,
-      difficult_sentences: statistics.difficultSentences,
-      text_analysis: textInfo,
     };
 
     supabase.from('practice_records').insert(cloudRecord).then(({ error }) => {
@@ -100,7 +98,7 @@ export const saveRecord = (
         console.error('同步到云端失败:', error);
         console.log('失败的记录:', cloudRecord);
       } else {
-        console.log('同步到云端成功，包含详细分析数据');
+        console.log('同步到云端成功');
       }
     });
 

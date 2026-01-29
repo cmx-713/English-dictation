@@ -14,6 +14,11 @@ function App() {
   const [mode, setMode] = useState<AppMode>('setup');
   const [rawText, setRawText] = useState('');
   const [results, setResults] = useState<SentenceResult[]>([]);
+  const [studentMetadata, setStudentMetadata] = useState<{
+    studentName: string;
+    className: string;
+    inputMethod: 'text' | 'voice' | 'image';
+  } | null>(null);
 
   // Check for admin mode in URL
   useEffect(() => {
@@ -23,15 +28,21 @@ function App() {
     }
   }, []);
 
-  const handleStart = (text: string) => {
+  const handleStart = (
+    text: string, 
+    metadata?: { studentName: string; className: string; inputMethod: 'text' | 'voice' | 'image' }
+  ) => {
     setRawText(text);
+    if (metadata) {
+      setStudentMetadata(metadata);
+    }
     setMode('practice');
   };
 
   const handleFinish = (res: SentenceResult[]) => {
     setResults(res);
     if (rawText && res.length > 0) {
-      saveRecord(rawText, res);
+      saveRecord(rawText, res, studentMetadata || undefined);
     }
     setMode('results');
   };

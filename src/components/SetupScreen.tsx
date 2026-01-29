@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { FileText, ArrowRight, Loader2, Mic, Camera, Image } from 'lucide-react';
+import { StudentInfo } from './StudentInfo';
 // 引入 OCR 库
 import Tesseract from 'tesseract.js';
 
 interface SetupScreenProps {
-  onStart: (text: string) => void;
+  onStart: (text: string, metadata?: { studentName: string; className: string; inputMethod: 'text' | 'voice' | 'image' }) => void;
 }
 
 export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
@@ -14,6 +15,15 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
   const [processingStatus, setProcessingStatus] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
+  
+  // 学生信息
+  const [studentName, setStudentName] = useState('');
+  const [className, setClassName] = useState('');
+
+  const handleStudentInfoChange = (name: string, classN: string) => {
+    setStudentName(name);
+    setClassName(classN);
+  };
 
   // --- 真正的图片识别逻辑 ---
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,6 +135,9 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
       </div>
 
       <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 border border-slate-100">
+        {/* 学生信息输入 */}
+        <StudentInfo onInfoChange={handleStudentInfoChange} />
+        
         <div className="flex gap-3 mb-6 border-b border-slate-100 pb-4">
           <button
             onClick={() => setMode('text')}
@@ -159,7 +172,13 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
             />
             <div className="flex justify-end">
               <button
-                onClick={() => onStart(text)}
+                onClick={() => {
+                  if (!studentName.trim()) {
+                    alert('请先填写学生信息');
+                    return;
+                  }
+                  onStart(text, { studentName, className, inputMethod: 'text' });
+                }}
                 disabled={!text.trim()}
                 className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white px-8 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
               >
@@ -206,8 +225,12 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
               <div className="flex justify-end">
                 <button
                   onClick={() => {
+                    if (!studentName.trim()) {
+                      alert('请先填写学生信息');
+                      return;
+                    }
                     setMode('text');
-                    setTimeout(() => onStart(text), 300);
+                    setTimeout(() => onStart(text, { studentName, className, inputMethod: 'voice' }), 300);
                   }}
                   className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-md"
                 >
@@ -255,7 +278,13 @@ export const SetupScreen: React.FC<SetupScreenProps> = ({ onStart }) => {
                 />
                 <div className="flex justify-end">
                   <button
-                    onClick={() => onStart(text)}
+                    onClick={() => {
+                      if (!studentName.trim()) {
+                        alert('请先填写学生信息');
+                        return;
+                      }
+                      onStart(text, { studentName, className, inputMethod: 'image' });
+                    }}
                     disabled={!text.trim()}
                     className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-md disabled:opacity-50"
                   >
