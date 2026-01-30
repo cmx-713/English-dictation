@@ -82,7 +82,7 @@ export const calculateDiff = (original: string, input: string): DiffResult => {
   // We will keep it simple for the MVP: Just show diffs.
 
   const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
-  const score = Math.max(0, accuracy); // Ensure no negative
+  const score = Math.max(0, Math.round(accuracy / 10)); // 转换为 0-10 的分数
 
   return {
     diffs,
