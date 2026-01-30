@@ -5,10 +5,10 @@ import { PracticeScreen, SentenceResult } from './components/PracticeScreen';
 import { ResultsScreen } from './components/ResultsScreen';
 import { HistoryScreen } from './components/HistoryScreen';
 import { ReviewScreen } from './components/ReviewScreen';
-import { AdminDashboard } from './components/AdminDashboard';
+import { TeacherDashboard } from './components/TeacherDashboard';
 import { saveRecord } from './utils/historyManager';
 
-type AppMode = 'setup' | 'practice' | 'results' | 'history' | 'review' | 'admin';
+type AppMode = 'setup' | 'practice' | 'results' | 'history' | 'review' | 'teacher';
 
 function App() {
   const [mode, setMode] = useState<AppMode>('setup');
@@ -20,11 +20,11 @@ function App() {
     inputMethod: 'text' | 'voice' | 'image';
   } | null>(null);
 
-  // Check for admin mode in URL
+  // Check for teacher mode in URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('mode') === 'admin') {
-      setMode('admin');
+    if (params.get('mode') === 'teacher') {
+      setMode('teacher');
     }
   }, []);
 
@@ -103,8 +103,8 @@ function App() {
             />
           )}
 
-          {mode === 'admin' && (
-            <AdminDashboard onBack={handleRestart} />
+          {mode === 'teacher' && (
+            <TeacherDashboard onBack={handleRestart} />
           )}
         </div>
       </main>
