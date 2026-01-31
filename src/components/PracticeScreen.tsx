@@ -29,7 +29,7 @@ export const PracticeScreen: React.FC<PracticeScreenProps> = ({ rawText, onFinis
   const [speechRate, setSpeechRate] = useState(1.0);
   const [isAiOpen, setIsAiOpen] = useState(false);
 
-  const { voices, selectedVoice, setSelectedVoice, speak, isPlaying, cancel } = useSpeech();
+  const { voices, selectedVoice, setSelectedVoice, speak, isPlaying, cancel, isSupported, error } = useSpeech();
 
   useEffect(() => {
     const s = splitTextIntoSentences(rawText);
@@ -121,6 +121,33 @@ export const PracticeScreen: React.FC<PracticeScreenProps> = ({ rawText, onFinis
 
         {/* 工具栏 */}
         <div className="bg-white sticky top-20 z-40 shadow-sm rounded-lg p-4 mb-8 flex flex-wrap items-center justify-between gap-4 border border-gray-100 mt-4">
+          {/* 语音不支持提示 */}
+          {!isSupported && (
+            <div className="w-full bg-red-50 border border-red-200 rounded-lg p-3 mb-2">
+              <p className="text-sm text-red-600">
+                ⚠️ {error || '你的浏览器不支持语音朗读功能，请使用 Chrome、Edge 或 Safari 浏览器。'}
+              </p>
+            </div>
+          )}
+          
+          {/* 语音列表为空提示 */}
+          {isSupported && voices.length === 0 && (
+            <div className="w-full bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-2">
+              <p className="text-sm text-yellow-700">
+                ⏳ 正在加载语音包，请稍候...
+              </p>
+            </div>
+          )}
+          
+          {/* 英文语音包缺失提示 */}
+          {isSupported && error && (
+            <div className="w-full bg-orange-50 border border-orange-200 rounded-lg p-3 mb-2">
+              <p className="text-sm text-orange-700">
+                ⚠️ {error}
+              </p>
+            </div>
+          )}
+          
           <div className="flex items-center gap-4">
               <h2 className="font-bold text-gray-700">进度: {results.size} / {sentences.length}</h2>
               <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
